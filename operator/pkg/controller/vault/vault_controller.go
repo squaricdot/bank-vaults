@@ -1093,12 +1093,20 @@ func hostsAndIPsForVault(v *vaultv1alpha1.Vault, service *corev1.Service) []stri
 
 func loadBalancerIngressPoints(service *corev1.Service) []string {
 	var hostsAndIPs []string
-	for _, ingress := range service.Status.LoadBalancer.Ingress {
-		if ingress.IP != "" {
-			hostsAndIPs = append(hostsAndIPs, ingress.IP)
-		}
-		if ingress.Hostname != "" {
-			hostsAndIPs = append(hostsAndIPs, ingress.Hostname)
+
+    // Use requested IP
+	if service.Spec.LoadBalancerIP != "" {
+	    hostAndIPs = append(hostAndIPs, service.Spec.LoadBalancerIP)
+
+    // Use provided IP or Hostname
+	} else {
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			if ingress.IP != "" {
+				hostsAndIPs = append(hostsAndIPs, ingress.IP)
+			}
+			if ingress.Hostname != "" {
+				hostsAndIPs = append(hostsAndIPs, ingress.Hostname)
+			}
 		}
 	}
 	return hostsAndIPs
